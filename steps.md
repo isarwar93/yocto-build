@@ -68,3 +68,48 @@ bitbake core-image-base
 ```
 bitbake core-image-base -c populate_sdk
 ```
+
+10. It will create following .sh file depending upon the Yocto version name in /tmp/deploy/sdk:
+
+```
+fsl-imx-wayland-glibc-x86_64-core-image-base-cortexa7t2hf-neon-pico-imx7-toolchain-6.6-scarthgap.sh
+```
+
+11. Then run the following commands:
+
+```
+chmod +x **.sh
+./**.sh
+```
+
+12. Set the target directory, when it will output something like following:
+
+```
+TechNexion i.MX Release Distro SDK installer version 6.6-scarthgap
+==================================================================
+Enter target directory for SDK (default: /opt/fsl-imx-wayland/6.6-scarthgap): 
+```
+
+13. Source the environment script
+
+Once installed:
+
+source /opt/poky/xxx/environment-setup-cortexa7t2hf-neon-<machine>
+
+In our case:
+
+```
+source /opt/fsl-imx-wayland/6.6-scarthgap/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi 
+```
+
+This sets:
+
+    CC, CXX, LD, etc.
+
+    PKG_CONFIG_PATH, CFLAGS, LDFLAGS, etc.
+
+To verify:
+```
+echo $CC
+```
+# Should show something like arm-poky-linux-gnueabi-gcc

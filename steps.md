@@ -1,35 +1,50 @@
 # Steps to get Yocto build
 
-1. Install docker: 
+-> Install docker: 
 
-```
-sudo snap install docker
-```
+See docker-install file
 
-2. Build the docker
+
+-> Build the docker
 
 ```
 docker build -t yocto-bsp-env .
 ```
 
-3. To run the docker and have the docker data save in local workspace and to detach the docker with the terminal:
+-> To run the docker and have the docker data save in local workspace and to detach the docker with the terminal:
 
 ```
 docker run -dit --name yocto-dev \
   -v $HOME/yocto-workspace:/home/yoctouser/temp \
   yocto-bsp-env
 ```
-
-4. For later attach the terminal with docker or start or stop using following commands:
-
+or with port 22:
 ```
-sudo docker start -ai yocto-dev # To start the container
-sudo docker start yocto-dev  # to start container detached
-docker exec -it yocto-dev bash  # To enter the container
-docker stop yocto-dev           # To stop the container
+docker run -dit --name yocto-dev \
+  -p 2222:22 \
+  -v $HOME/yocto-workspace:/home/yoctouser/temp \
+  yocto-bsp-env
 ```
 
-5. Add your user to the docker group
+
+-> To check which docker images are present including stopped ones
+```
+docker ps -a
+docker image ls
+docker images
+```
+
+-> For later attach the terminal with docker or start or stop using following commands:
+
+
+```
+sudo docker start -ai yocto-dev   # To start the container
+sudo docker start yocto-dev       # To start container detached
+docker exec -it yocto-dev bash    # To enter the container
+docker stop yocto-dev             # To stop the container
+```
+
+-> Add your user to the docker group
 
 ```
 sudo groupadd docker
@@ -38,14 +53,14 @@ sudo usermod -aG docker $USER
 ```
 
 
-6. Add git global config:
+-> Add git global config:
 
 ```
 git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 ```
 
-7. Through following lines BSP sources needs to be downloaded
+-> Through following lines BSP sources needs to be downloaded
 
 ```
 mkdir edm_yocto
@@ -55,7 +70,7 @@ repo sync -j$(nproc)
 ```
 
 
-8. Run following command to set what option would like to add:
+-> Run following command to set what option would like to add:
 
 ```
 WIFI_FIRMWARE=y WIFI_MODULE=qca DISTRO=fsl-imx-wayland MACHINE=pico-imx7 BASEBOARD=pi source tn-setup-release.sh -b build-wayland-pico-imx7
@@ -63,26 +78,26 @@ bitbake core-image-base
 ```
 
 
-9. For the cross compiling, following command is required:
+-> For the cross compiling, following command is required:
 
 ```
 bitbake core-image-base -c populate_sdk
 ```
 
-10. It will create following .sh file depending upon the Yocto version name in /tmp/deploy/sdk:
+-> It will create following .sh file depending upon the Yocto version name in /tmp/deploy/sdk:
 
 ```
 fsl-imx-wayland-glibc-x86_64-core-image-base-cortexa7t2hf-neon-pico-imx7-toolchain-6.6-scarthgap.sh
 ```
 
-11. Then run the following commands:
+-> Go to the folder, and find /tmp/deploy/sdk and there run the following commands:
 
 ```
 chmod +x **.sh
 ./**.sh
 ```
 
-12. Set the target directory, when it will output something like following:
+-> Set the target directory, when it will output something like following:
 
 ```
 TechNexion i.MX Release Distro SDK installer version 6.6-scarthgap
@@ -90,26 +105,44 @@ TechNexion i.MX Release Distro SDK installer version 6.6-scarthgap
 Enter target directory for SDK (default: /opt/fsl-imx-wayland/6.6-scarthgap): 
 ```
 
-13. Source the environment script
+-> Source the environment script
 
-Once installed:
+Once installed it should show something like this:
+
+```
+Enter target directory for SDK (default: /opt/fsl-imx-wayland/6.6-scarthgap): 
+You are about to install the SDK to "/opt/fsl-imx-wayland/6.6-scarthgap". Proceed [Y/n]? y
+Extracting SDK..........................................................................................................................................................done
+Setting it up...done
+SDK has been successfully set up and is ready to be used.
+Each time you wish to use the SDK in a new shell session, you need to source the environment setup script e.g.
+ $ . /opt/fsl-imx-wayland/6.6-scarthgap/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
+```
+
+Therefor, we need to source the compiler
 
 source /opt/poky/xxx/environment-setup-cortexa7t2hf-neon-<machine>
 
-In our case:
+-> In our case:
 
 ```
 source /opt/fsl-imx-wayland/6.6-scarthgap/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi 
 ```
 
-This sets:
+This sets: CC, CXX, LD, ,PKG_CONFIG_PATH, CFLAGS, LDFLAGS, etc.
 
-    CC, CXX, LD, etc.
-
-    PKG_CONFIG_PATH, CFLAGS, LDFLAGS, etc.
-
-To verify:
+-> To verify:
 ```
 echo $CC
 ```
-# Should show something like arm-poky-linux-gnueabi-gcc
+Should show something like arm-poky-linux-gnueabi-gcc
+
+-> further modifications can be done in the following files:
+
+# TechNexion setup-environment.sh wrapper: Further modification to bblayers.conf and local.conf
+
+# setup i.MX Yocto Project Release layers in bblayers.conf
+# setup TechNexion i.MX Yocto Project Release Layers in bblayers.conf
+# setup TechNexion wifi layer in bblayers.conf
+# setup TechNexion vizionsdk layer in bblayers.conf
+# setup NXP nfc release layer in bblayers.conf
